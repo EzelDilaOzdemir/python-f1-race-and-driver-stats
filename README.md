@@ -1,1 +1,5 @@
 # python-f1-race-and-driver-stats
+
+Formula 1 is one of the most data driven sports in the world with detailed race statistics available since 1950.  Despite the abundance of data, meaningful comparisons between drivers, especially across different eras still remain difficult. Traditional comparisons often rely on a small set of raw statistics such as total wins or championship titles. However, these metrics alone are insufficient for evaluating driver similarity because they ignore contextual and qualitative factors within the sport. 
+
+The objective of this project is to develop an algorithmic system that compares Formula 1 drivers using a combination of quantitative race statistics and encoded qualitative attributes. The system will represent each driver as a numerical feature vector and compute similarity scores using mathematical distance metrics. Additionally, clustering algorithms will group drivers into performance tiers based on statistical similarity. The project aims to demonstrate how fundamental programming techniques can be used to build analytical tools for sports data exploration.
