@@ -205,3 +205,56 @@ def __repr__(self):
     )
 
 #SECTION 3: TEAM CLASS
+
+class Team:
+    """represents an F1 constructor and aggeragates its drivers"""
+    def __init__(self, constructor_id, name, nationality= None):
+        self.constructor_id = constructor_id
+        self.name = name
+        self.nationality = nationality
+
+        self.drivers = []
+        self.feature_vector = []
+
+        self.total_race_entries = 0
+        self.total_points = 0   
+
+    def add_driver(self, driver):
+        """registers a driver with this team"""
+
+        if not isinstance(driver, Driver):
+            raise TypeError("Expected a Driver instance")
+        if driver not in self.drivers:
+            self.drivers.append(driver)
+
+    def accumulate_constructor_result(self, points):
+        self.total_race_entries += 1
+        self.total_points       += points
+
+    def compute_team_vector(self):
+        """Compute the team feature vector as the mean of
+        all drivers' feature vectors."""
+
+        active = [d for d in self.drivers if d.feature_vector]
+        if not active:
+            self.feature_vector = []
+            return
+ 
+        dim    = len(active[0].feature_vector)
+        summed = [0.0] * dim
+ 
+        for driver in active:
+            for i, val in enumerate(driver.feature_vector):
+                summed[i] += val
+ 
+        n = len(active)
+        self.feature_vector = [s / n for s in summed]
+ 
+    def __repr__(self):
+        return (
+            f"Team({self.name!r}, "
+            f"drivers={len(self.drivers)}, "
+            f"pts={self.total_points:.0f})"
+        )
+ 
+
