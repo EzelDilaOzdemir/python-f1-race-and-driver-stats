@@ -115,7 +115,7 @@ class Dataloader:
             status_id  = row.get("statusId", "1")
             is_dnf = self.status_map.get(status_id, False)
  
-            driver.accumulate_result(grid_pos, finish_pos, points, is_dnf)
+            driver.accumulate_results(grid_pos, finish_pos, points, is_dnf)
  
             race_year = self.races.get(rid, {}).get("year", 1950)
             if race_year < driver.debut_year or driver.debut_year == 1950:
@@ -162,7 +162,7 @@ class Dataloader:
             if driver is None:
                 continue
  
-            driver.accumulate_qualifying(quali_pos)
+            driver.accumulate_quali(quali_pos)
             rows_read += 1
  
         print(f"  Processed {rows_read:,} qualifying rows.")
