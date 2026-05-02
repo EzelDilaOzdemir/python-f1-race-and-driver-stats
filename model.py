@@ -1,4 +1,4 @@
-    """This file contains driver and team classes"""
+"""This file contains driver and team classes"""
 
 from utils import normalize_vector
 
@@ -92,7 +92,7 @@ class Driver:
         self.sprint_points += points
 
     def compute_derived_stats(self):
-    """computes all rate based metrics"""
+        """computes all rate based metrics"""
         r = self.races_started
         if r == 0:
             return #driver has no race data 
@@ -116,24 +116,24 @@ class Driver:
     
     def build_feature_vector(self):
         
-    # avg_quali is 0 for pre-1994 drivers (no qualifying data) — fall back to avg_grid
-    quali = self.avg_quali if self.avg_quali > 0 else self.avg_grid
+        # avg_quali is 0 for pre-1994 drivers (no qualifying data) — fall back to avg_grid
+        quali = self.avg_quali if self.avg_quali > 0 else self.avg_grid
 
-    # clamp normalized points to 1.0 — dominant drivers in long modern seasons
-    # can exceed 1.0 if they score near-maximum points every race
-    pts = min(self.normalized_points_per_race, 1.0)
+        # clamp normalized points to 1.0 — dominant drivers in long modern seasons
+        # can exceed 1.0 if they score near-maximum points every race
+        pts = min(self.normalized_points_per_race, 1.0)
 
-    raw = [
-        self.win_rate,              # [0] wins / races started
-        self.podium_rate,           # [1] podiums / races started
-        pts,                        # [2] normalized & clamped points per race
-        self.avg_grid,              # [3] average starting position
-        self.dnf_rate,              # [4] did-not-finish / races started
-        self.position_gain,         # [5] mean(grid - finish), positive = overtaker
-        quali,                      # [6] avg qualifying pos, falls back to avg_grid
-        float(self.championships),  # [7] career world titles
-    ]
-    self.feature_vector = normalize_vector(raw)
+        raw = [
+            self.win_rate,              # [0] wins / races started
+            self.podium_rate,           # [1] podiums / races started
+            pts,                        # [2] normalized & clamped points per race
+            self.avg_grid,              # [3] average starting position
+            self.dnf_rate,              # [4] did-not-finish / races started
+            self.position_gain,         # [5] mean(grid - finish), positive = overtaker
+            quali,                      # [6] avg qualifying pos, falls back to avg_grid
+            float(self.championships),  # [7] career world titles
+        ]
+        self.feature_vector = normalize_vector(raw)
  
     def __repr__(self):
         return (
