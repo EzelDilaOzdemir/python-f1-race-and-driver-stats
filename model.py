@@ -12,12 +12,9 @@ class Driver:
         [4] dnf_rate
         [5] position_gain
         [6] avg_quali
-        [7] era_encoded
-        [8] championships"""
+        [7] championships
+        """
     
-    ERA_MAP = {1950: 0, 1960: 1, 1970: 2, 1980: 3,
-        1990: 4, 2000: 5, 2010: 6, 2020: 7
-    }
 
 # a weight to the points_per_race feature to account for the fact that modern seasons have 24 races while 1950s seasons only had 7
 
@@ -104,10 +101,10 @@ class Driver:
         self.podium_rate = self.podiums / r
         self.dnf_rate = self.dnfs / r
 
-        raw_points_per_race = (self.race_points + self.sprint_points) / r
-        era_index = self.encode_era()
-        max_pts_possible = self.POINTS_SYSTEM_MAP.get(era_index, 26.0)
-        self.normalized_points_per_race = raw_points_per_race / max_pts_possible
+        raw_points_per_race = (self.race_points + self.sprint_points) / r        
+        decade = (self.debut_year // 10) * 10
+        max_pts = self.POINTS_SYSTEM_MAP.get(decade, 26.0)
+        self.normalized_points_per_race = raw_points_per_race / max_pts
 
         self.avg_grid = self.grid_sum / self.grid_count if self.grid_count > 0 else 0.0
         self.avg_quali = self.quali_sum / self.quali_count if self.quali_count > 0 else 0.0
@@ -117,26 +114,26 @@ class Driver:
  
         self.build_feature_vector()
     
-    def encode_era(self):
-        decade = (self.debut_year // 10) * 10
-        return self.ERA_MAP.get(decade, 7)
-
     def build_feature_vector(self):
-    """
-    Assemble and normalize the 9-dimensional feature vector.
-    """
-        raw = [
-            self.win_rate,               
-            self.podium_rate,            
-            self.normalized_points_per_race,        
-            self.avg_grid,              
-            self.dnf_rate,             
-            self.position_gain,       
-            self.avg_quali,            
-            float(self.encode_era()),  
-            float(self.championships),  
-            ]
-        self.feature_vector = normalize_vector(raw)
+        
+    # avg_quali is 0 for pre-1994 drivers (no qualifying data) — fall back to avg_grid
+    quali = self.avg_quali if self.avg_quali > 0 else self.avg_grid
+
+    # clamp normalized points to 1.0 — dominant drivers in long modern seasons
+    # can exceed 1.0 if they score near-maximum points every race
+    pts = min(self.normalized_points_per_race, 1.0)
+
+    raw = [
+        self.win_rate,              # [0] wins / races started
+        self.podium_rate,           # [1] podiums / races started
+        pts,                        # [2] normalized & clamped points per race
+        self.avg_grid,              # [3] average starting position
+        self.dnf_rate,              # [4] did-not-finish / races started
+        self.position_gain,         # [5] mean(grid - finish), positive = overtaker
+        quali,                      # [6] avg qualifying pos, falls back to avg_grid
+        float(self.championships),  # [7] career world titles
+    ]
+    self.feature_vector = normalize_vector(raw)
  
     def __repr__(self):
         return (
