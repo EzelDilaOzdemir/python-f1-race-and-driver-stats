@@ -7,17 +7,30 @@ class Driver:
     FEATURE VECTOR has 9 dimensions:
         [0] win_rate
         [1] podium_rate
-        [2] points_per_race
+        [2] self.normalized_points_per_race
         [3] avg_grid
         [4] dnf_rate
         [5] position_gain
         [6] avg_quali
         [7] era_encoded
         [8] championships"""
+    
 ERA_MAP = {1950: 0, 1960: 1, 1970: 2, 1980: 3,
         1990: 4, 2000: 5, 2010: 6, 2020: 7
     }
 
+# a weight to the points_per_race feature to account for the fact that modern seasons have 24 races while 1950s seasons only had 7
+
+POINTS_SYSTEM_MAP = {
+    0: 9.0,   # 1950s
+    1: 9.0,   # 1960s
+    2: 9.0,   # 1970s
+    3: 9.0,   # 1980s
+    4: 10.0,  # 1990s
+    5: 10.0,  # 2000s
+    6: 26.0,  # 2010s
+    7: 26.0   # 2020s
+}
 def __init__(self, driver_id, forename, surname, nationality, dob = None):
     self.driver_id   = driver_id
     self.forename    = forename
@@ -42,7 +55,7 @@ def __init__(self, driver_id, forename, surname, nationality, dob = None):
  
     self.win_rate        = 0.0
     self.podium_rate     = 0.0
-    self.points_per_race = 0.0
+    self.normalized_points_per_race = 0.0
     self.avg_grid        = 0.0
     self.dnf_rate        = 0.0
     self.position_gain   = 0.0
@@ -83,13 +96,15 @@ def compute_derived_stats(self):
     r = self.races_started
     if r == 0:
         return #driver has no race data 
-    
+
     self.win_rate = self.wins / r
     self.podium_rate = self.podiums / r
     self.dnf_rate = self.dnfs / r
 
-    total_points = self.race_points + self.sprint_points
-    self.points_per_race = total_points / r
+    raw_points_per_race = (self.race_points + self.sprint_points) / r
+    era_index = self._encode_era()
+    max_pts_possible = self.POINTS_SYSTEM_MAP.get(era_index, 26.0)
+    self.normalized_points_per_race = raw_points_per_race / max_pts_possible
 
     self.avg_grid = self.grid_sum / self.grid_count if self.grid_count > 0 else 0.0
     self.avg_quali = self.quali_sum / self.quali_count if self.quali_count > 0 else 0.0
@@ -99,6 +114,14 @@ def compute_derived_stats(self):
  
     self.build_feature_vector()
 
+    self.avg_grid = self.grid_sum / self.grid_count if self.grid_count > 0 else 0.0
+    self.avg_quali = self.quali_sum / self.quali_count if self.quali_count > 0 else 0.0
+
+    avg_finish = (self.finish_sum / self.finish_count if self.finish_count > 0 else 0.0)
+    self.position_gain = self.avg_grid - avg_finish
+ 
+    self.build_feature_vector()
+    
 def encode_era(self):
     decade = (self.debut_year // 10) * 10
     return self.ERA_MAP.get(decade, 7)
@@ -110,7 +133,7 @@ def build_feature_vector(self):
     raw = [
         self.win_rate,               
         self.podium_rate,            
-        self.points_per_race,        
+        self.normalized_points_per_race,        
         self.avg_grid,              
         self.dnf_rate,             
         self.position_gain,       
