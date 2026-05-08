@@ -1,4 +1,6 @@
- TIER_LABELS = ["GOAT", "Legendary", "Race Winner", "Point Scorer", "Backmarker"]
+import random 
+
+TIER_LABELS = ["GOAT", "Legendary", "Race Winner", "Point Scorer", "Backmarker"]
  
     def __init__(self, k=5, max_iterations=300, random_seed=42):
         self.k              = k
