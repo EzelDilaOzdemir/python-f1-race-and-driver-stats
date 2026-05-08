@@ -1,4 +1,5 @@
 import random 
+from utils import euclidean_distance, cosine_similarity
 
 TIER_LABELS = ["GOAT", "Legendary", "Race Winner", "Point Scorer", "Backmarker"]
  
