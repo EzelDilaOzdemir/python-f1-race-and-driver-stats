@@ -5,7 +5,7 @@ import os
 from model import Driver, Team
 from utils import safe_int, safe_float, is_null
 
-class Dataloader:
+class DataLoader:
   
   def __init__(self, data_dir="."):
       
