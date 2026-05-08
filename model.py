@@ -17,16 +17,17 @@ class Driver:
     
 
 # a weight to the points_per_race feature to account for the fact that modern seasons have 24 races while 1950s seasons only had 7
-
+    
     POINTS_SYSTEM_MAP = {
-        0: 9.0,   # 1950s
-        1: 9.0,   # 1960s
-        2: 9.0,   # 1970s
-        3: 9.0,   # 1980s
-        4: 10.0,  # 1990s
-        5: 10.0,  # 2000s
-        6: 26.0,  # 2010s
-        7: 26.0   # 2020s
+    1950: 9.0,   # 1950s (8 or 9 pts for win)
+    1960: 9.0,   
+    1970: 9.0,   
+    1980: 9.0,   
+    1990: 10.0,  # 1990s (10 pts for win)
+    2000: 10.0,  
+    2010: 26.0,  # 2010s (25 pts + 1 for fastest lap)
+    2020: 26.0   
+}
     }
     def __init__(self, driver_id, forename, surname, nationality, dob = None):
         self.driver_id   = driver_id
@@ -92,17 +93,22 @@ class Driver:
         self.sprint_points += points
 
     def compute_derived_stats(self):
-        """computes all rate based metrics"""
+        """computes all rate based metrics with era adjustment"""
         r = self.races_started
-        if r == 0:
-            return #driver has no race data 
+        
+        # Improvement: Drivers with fewer than 5 starts have volatile stats thatcan break the clustering. We skip building vectors for them.
+        if r < 5:
+            return 
 
         self.win_rate = self.wins / r
         self.podium_rate = self.podiums / r
         self.dnf_rate = self.dnfs / r
 
+        # Calculate normalized points based on the era's max possible win points
         raw_points_per_race = (self.race_points + self.sprint_points) / r        
         decade = (self.debut_year // 10) * 10
+        
+        # FIXED: This now correctly looks up the decade (e.g., 1950 instead of 0)
         max_pts = self.POINTS_SYSTEM_MAP.get(decade, 26.0)
         self.normalized_points_per_race = raw_points_per_race / max_pts
 
