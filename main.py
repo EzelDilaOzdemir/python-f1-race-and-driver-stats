@@ -17,13 +17,20 @@ def main():
         print(f"{tier}: {info['driver_count']} drivers. Top: {', '.join(info['top_drivers'])}")
 
     print("\n" + "="*20 + " SIMILARITY " + "="*20)
-    surname_map = {d.surname.lower(): d for d in all_drivers}
-    for name in ["hamilton", "verstappen", "schumacher", "senna]:
-        target = surname_map.get(name)
+    
+    def find_driver(drivers, surname):
+        matches = [d for d in drivers if d.surname.lower() == surname.lower()]
+        return max(matches, key=lambda d: d.races_started) if matches else None
+
+    for name in ["hamilton", "verstappen", "schumacher", "senna"]:
+        target = find_driver(all_drivers, name)
         if target:
             print(f"\nSimilar to {target.full_name}:")
             for drv, score in cm.find_similar_drivers(target):
                 print(f"  - {drv.full_name} ({drv.tier_label})")
 
+
+
 if __name__ == "__main__":
     main()
+
