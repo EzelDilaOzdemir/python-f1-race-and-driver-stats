@@ -13,7 +13,7 @@ class Driver:
         self.surname = surname
         self.nationality = nationality
         self.dob = dob
-        self.debut_year = 9999
+        self.debut_year = 9999  # sentinel; will be set to min race year in DataLoader
         self.races_started = 0
         self.wins = 0
         self.podiums = 0
@@ -64,7 +64,8 @@ class Driver:
 
     def compute_derived_stats(self):
         r = self.races_started
-        if r < 20: return # Filter low-sample drivers
+        if r < 20: return  # Filter low-sample drivers
+        if self.debut_year == 9999: return  # No races recorded — skip
         self.win_rate = self.wins / r
         self.podium_rate = self.podiums / r
         self.dnf_rate = self.dnfs / r
