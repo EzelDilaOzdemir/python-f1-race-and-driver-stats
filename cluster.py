@@ -67,7 +67,7 @@ class ClusterManager:
             scores.append((d, score))
         return sorted(scores, key=lambda x: x[1], reverse=True)[:top_n]
 
-   def get_cluster_summary(self):
+    def get_cluster_summary(self):
         summary = {}
         for cid, members in self.clusters.items():
             if not members: continue
