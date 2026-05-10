@@ -18,7 +18,7 @@ def main():
 
     print("\n" + "="*20 + " SIMILARITY " + "="*20)
     surname_map = {d.surname.lower(): d for d in all_drivers}
-    for name in ["hamilton", "verstappen", "schumacher"]:
+    for name in ["hamilton", "verstappen", "schumacher", "senna]:
         target = surname_map.get(name)
         if target:
             print(f"\nSimilar to {target.full_name}:")
