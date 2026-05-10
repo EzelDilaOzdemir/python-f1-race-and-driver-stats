@@ -38,20 +38,41 @@ class DataLoader:
             self.drivers[did] = Driver(did, row.get("forename", "Unknown"), row.get("surname", "Unknown"), row.get("nationality", "Unknown"), row.get("dob"))
 
     def load_constructors(self):
-        for row in self._open_csv("results.csv"):
+        # BUG FIX: was reading results.csv — must read constructors.csv for real team names
+        for row in self._open_csv("constructors.csv"):
             cid = row["constructorId"]
-            if cid not in self.teams:
-                self.teams[cid] = Team(cid, f"Constructor {cid}")
+            self.teams[cid] = Team(cid, row["name"], row.get("nationality"))
 
     def load_results(self):
         for row in self._open_csv("results.csv"):
             driver = self.drivers.get(row["driverId"])
             if not driver: continue
-            driver.accumulate_results(safe_int(row["grid"]), safe_int(row["positionOrder"]), safe_float(row["points"]), self.status_map.get(row["statusId"], False))
-            year = self.races.get(row["raceId"], {}).get("year", 1950)
-            if year < driver.debut_year or driver.debut_year == 1950: driver.debut_year = year
-            team = self.teams.get(row["constructorId"])
-            if team: team.add_driver(driver)
+            driver.accumulate_results(
+                safe_int(row["grid"]),
+                safe_int(row["positionOrder"]),
+                safe_float(row["points"]),
+                self.status_map.get(row["statusId"], False),
+            )
+            year = self.races.get(row["raceId"], {}).get("year", 9999)
+            # BUG FIX: sentinel is now 9999; simple < covers all cases correctly
+            if year < driver.debut_year:
+                driver.debut_year = year
+            # Ensure team exists even if not in constructors.csv (safety net)
+            cid = row["constructorId"]
+            if cid not in self.teams:
+                self.teams[cid] = Team(cid, f"Constructor {cid}")
+            self.teams[cid].add_driver(driver)
+
+    def load_championships(self):
+        # BUG FIX: championships were never loaded — always 0, corrupting the feature vector
+        for row in self._open_csv("driver_standings.csv"):
+            if row["raceId"] not in self.season_final_races:
+                continue
+            if safe_int(row.get("position", 0)) != 1:
+                continue
+            driver = self.drivers.get(row["driverId"])
+            if driver:
+                driver.championships += 1
 
     def load_all(self):
         print("Loading F1 dataset...")
@@ -60,6 +81,7 @@ class DataLoader:
         self.load_drivers()
         self.load_constructors()
         self.load_results()
+        self.load_championships()  # BUG FIX: was missing from load_all
         for d in self.drivers.values(): d.compute_derived_stats()
         for t in self.teams.values(): t.compute_team_vector()
         print("Dataset ready.")
