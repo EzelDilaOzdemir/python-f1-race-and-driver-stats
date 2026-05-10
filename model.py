@@ -13,7 +13,7 @@ class Driver:
         self.surname = surname
         self.nationality = nationality
         self.dob = dob
-        self.debut_year = 1950
+        self.debut_year = 9999
         self.races_started = 0
         self.wins = 0
         self.podiums = 0
