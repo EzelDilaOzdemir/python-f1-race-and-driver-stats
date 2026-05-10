@@ -2,7 +2,7 @@ import random
 from utils import euclidean_distance, cosine_similarity
 
 class ClusterManager:
-    TIER_LABELS = ["GOAT", "Legendary", "Race Winner", "Point Scorer", "Backmarker"]
+    TIER_LABELS = ["GOAT", "Legendary", "Race Winner", "Backmarker", "Privateer"]
 
     def __init__(self, k=5, max_iterations=300, random_seed=42):
         self.k = k
