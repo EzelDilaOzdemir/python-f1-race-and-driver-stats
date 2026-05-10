@@ -5,7 +5,7 @@ def main():
     # 1. Load data
     loader = DataLoader(data_dir="./f1_data/")
     loader.load_all()
-    all_drivers = list(loader.drivers.values())
+    all_drivers = sorted(loader.drivers.values(), key=lambda d: d.driver_id)
 
     # 2. Run K-Means
     cm = ClusterManager(k=5)
@@ -33,4 +33,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
