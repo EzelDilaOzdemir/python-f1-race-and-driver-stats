@@ -67,14 +67,28 @@ class ClusterManager:
             scores.append((d, score))
         return sorted(scores, key=lambda x: x[1], reverse=True)[:top_n]
 
-    def get_cluster_summary(self):
+   def get_cluster_summary(self):
         summary = {}
         for cid, members in self.clusters.items():
             if not members: continue
             label = members[0].tier_label
+            
+            #new weighted ranking logic
             summary[label] = {
                 "driver_count": len(members),
                 "avg_win_rate": sum(d.win_rate for d in members)/len(members),
-                "top_drivers": [d.full_name for d in sorted(members, key=lambda x: x.wins, reverse=True)[:5]]
+                "top_drivers": [
+                    d.full_name
+                    for d in sorted(
+                        members,
+                        key=lambda x: (
+                            x.win_rate * 4 + 
+                            x.podium_rate * 3 + 
+                            x.normalized_points_per_race * 2 + 
+                            x.championships
+                        ),
+                        reverse=True
+                    )[:5]
+                ]
             }
         return summary
