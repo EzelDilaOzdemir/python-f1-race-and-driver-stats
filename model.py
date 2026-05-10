@@ -64,7 +64,7 @@ class Driver:
 
     def compute_derived_stats(self):
         r = self.races_started
-        if r < 5: return # Filter low-sample drivers
+        if r < 20: return # Filter low-sample drivers
         self.win_rate = self.wins / r
         self.podium_rate = self.podiums / r
         self.dnf_rate = self.dnfs / r
