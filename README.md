@@ -68,3 +68,23 @@ Euclidean Distance → absolute statistical difference
 ✅ Object-oriented system fully functional
 ⏳ Clustering model integration in progress
 ⏳ Tier generation not finalized yet
+
+**🛠️ Setup and Installation**
+
+1. Clone the repository:
+
+Bash
+git clone https://github.com/EzelDilaOzdemir/python-f1-race-and-driver-stats.git
+cd python-f1-race-and-driver-stats
+
+2. Install Dependencies:
+Ensure you have Python 3.x installed.
+
+4. Data Setup:
+Place the raw Kaggle Ergast dataset CSV files directly into the data/ directory before running the scripts.
+
+🚀 How to Run
+Execute the main script to run the data pipeline, perform K-Means clustering, and calculate driver similarity:
+
+Bash
+python main.py
